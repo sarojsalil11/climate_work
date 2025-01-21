@@ -1,0 +1,37 @@
+import xarray as xr
+import matplotlib.pyplot as plt
+
+# Path to the NetCDF file
+file_path = r"H:\saroj internship work\rainfall_data\data\1980_2020_cpc_jjas.nc"
+
+# Read the NetCDF file
+ds = xr.open_dataset(file_path)
+
+# Extract precipitation data for JJAS months from 1980 to 2020
+jjas_data = ds['precip'].sel(time=slice('1980-06-01', '2020-09-30'))
+
+# Calculate total rainfall for each JJAS month
+june_total = jjas_data.sel(time=jjas_data['time.month'] == 6).sum(dim=('lat', 'lon'))
+july_total = jjas_data.sel(time=jjas_data['time.month'] == 7).sum(dim=('lat', 'lon'))
+august_total = jjas_data.sel(time=jjas_data['time.month'] == 8).sum(dim=('lat', 'lon'))
+september_total = jjas_data.sel(time=jjas_data['time.month'] == 9).sum(dim=('lat', 'lon'))
+
+# Check if the length of years matches for all months
+assert all(len(june_total['time']) == len(var['time']) for var in [july_total, august_total, september_total])
+
+# Plotting
+plt.figure(figsize=(25, 7 ))
+
+plt.plot(june_total['time'], june_total, label='June')
+plt.plot(july_total['time'], july_total, label='July')
+plt.plot(august_total['time'], august_total, label='August')
+plt.plot(september_total['time'], september_total, label='September')
+
+plt.title('Total Rainfall for JJAS Months (1980-2020)')
+plt.xlabel('Year')
+plt.ylabel('Total Rainfall (mm)')
+plt.legend()
+plt.grid(True)
+plt.show()
+
+
